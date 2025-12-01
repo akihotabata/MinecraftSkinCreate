@@ -3,7 +3,7 @@ from __future__ import annotations
 import argparse
 import pathlib
 
-from . import PhotoSkinGenerator, SkinGenerator, base_palettes
+from . import SkinGenerator, base_palettes
 
 
 def parse_args() -> argparse.Namespace:
@@ -15,28 +15,15 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--palette",
-        choices=["auto"] + sorted(base_palettes().keys()),
+        choices=sorted(base_palettes().keys()),
         default="classic",
-        help=(
-            "Palette style to apply. Use 'auto' to sample dominant colors "
-            "from the given photo."
-        ),
+        help="Palette style to apply (defaults to classic).",
     )
     parser.add_argument(
         "--seed",
         type=int,
         default=None,
         help="Optional RNG seed to keep accent placement deterministic.",
-    )
-    parser.add_argument(
-        "--photo",
-        type=pathlib.Path,
-        help="Photo file to derive a palette and face tile from.",
-    )
-    parser.add_argument(
-        "--skip-face",
-        action="store_true",
-        help="When a photo is provided, skip overlaying the sampled 8x8 face tile.",
     )
     parser.add_argument(
         "--out",
@@ -50,24 +37,10 @@ def parse_args() -> argparse.Namespace:
 def main() -> None:
     args = parse_args()
     palettes = base_palettes()
+    palette = palettes[args.palette]
 
-    palette_key = args.palette
-    if palette_key == "auto" and not args.photo:
-        palette_key = "classic"
-    if args.photo and palette_key == "classic":
-        # When a photo is supplied without an explicit palette, prioritize auto derivation.
-        palette_key = "auto"
-
-    if args.photo and palette_key == "auto":
-        generator = PhotoSkinGenerator(photo_path=args.photo, seed=args.seed)
-        image = generator.generate()
-        if args.skip_face:
-            # Regenerate with the same palette minus the extracted face tile.
-            image = SkinGenerator(generator.palette, seed=args.seed).generate()
-    else:
-        palette = palettes[palette_key]
-        generator = SkinGenerator(palette=palette, seed=args.seed)
-        image = generator.generate()
+    generator = SkinGenerator(palette=palette, seed=args.seed)
+    image = generator.generate()
 
     args.out.parent.mkdir(parents=True, exist_ok=True)
     image.save(args.out, format="PNG")

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import random
-from typing import Dict, Iterable
+from typing import Iterable
 
 from PIL import Image, ImageDraw
 
