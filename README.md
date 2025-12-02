@@ -10,7 +10,17 @@ pip install -r requirements.txt
 
 ## 使い方
 
-以下のコマンドでスキン PNG を出力します。
+### GUI を起動する
+
+写真からパレットを自動抽出したり、顔だけを写真から合成したりできる GUI を用意しています。次のコマンドで起動してください。
+
+```bash
+python -m src.skin_creator.gui
+```
+
+### CLI で生成する
+
+従来のコマンドライン生成もサポートしています。以下のコマンドでスキン PNG を出力します。
 
 ```bash
 python -m src.skin_creator.cli --out build/forest.png --palette forest
